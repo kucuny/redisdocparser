@@ -2,9 +2,10 @@ package parser
 
 import (
 	"fmt"
-	gq "github.com/PuerkitoBio/goquery"
 	"regexp"
 	"strconv"
+
+	gq "github.com/PuerkitoBio/goquery"
 )
 
 const RegAvailableVersion string = `(?P<major>\d+)\.(?P<minor>\d+)\.(?P<revision>\d+)\.`
@@ -22,7 +23,7 @@ func (r RedisView) Run(cmdList []Index) []View {
 	var result []View
 
 	for k, cmd := range cmdList {
-		url := fmt.Sprintf(RedisViewURL, cmd.Url)
+		url := fmt.Sprintf(RedisViewURL, cmd.URL)
 		doc, err := r.parse(url)
 
 		if err != nil {
@@ -39,10 +40,18 @@ func (r RedisView) Run(cmdList []Index) []View {
 			availableVersion := r.parseAvailableVersion(s.Find(".metadata p strong").Eq(0).Text())
 			timeComplexity := r.parseTimeComplexity(s.Find(".metadata p").Eq(1).Text())
 
-			result = append(result, View{Group: cmd.Group, CmdName: cmdName, AvailableVersion: availableVersion, TimeComplexity: timeComplexity, Args: args, Url: url})
+			temp := View{
+				Group:            cmd.Group,
+				CmdName:          cmdName,
+				AvailableVersion: availableVersion,
+				TimeComplexity:   timeComplexity,
+				Args:             args,
+				URL:              url,
+			}
+			result = append(result, temp)
 		})
 
-		if k >= 10 {
+		if k > 2 {
 			return result
 		}
 	}
@@ -75,13 +84,13 @@ func (r RedisView) parseTimeComplexity(tc string) string {
 // 	var resultEachGroup map[string][]View
 
 // 	for _, cmd := range viewDetail {
-//         if _, ok := resultEachVersion[cmd.AvailableVersion.Major]; !ok {
-//             resultEachVersion = make(map[int][int][]View)
-//         }
+// 		if _, ok := resultEachVersion[cmd.AvailableVersion.Major]; !ok {
+// 			resultEachVersion = make(map[int][int][]View)
+// 		}
 
-//         if _, ok := resultEachVersion[cmd.AvailableVersion.Major][cmd.AvailableVersion.Minor]; !ok {
-//             resultEachVersion[cmd.AvailableVersion.Major] = make([int][]View)
-//         }
+// 		if _, ok := resultEachVersion[cmd.AvailableVersion.Major][cmd.AvailableVersion.Minor]; !ok {
+// 			resultEachVersion[cmd.AvailableVersion.Major] = make([int][]View)
+// 		}
 
 // 		if major, ok := resultEachVersion[cmd.AvailableVersion.Major]; ok {
 // 			if minor, ok := resultEachVersion[major][cmd.AvailableVersion.Minor]; ok {
@@ -90,9 +99,7 @@ func (r RedisView) parseTimeComplexity(tc string) string {
 // 				} else {
 // 					resultEachVersion[major][minor] = make(map[int][]View)
 // 					resultEachVersion[major][minor][revision] = cmd
-// 				} else {
-
-//                 }
+// 				}
 // 			}
 // 		}
 // 	}

@@ -8,10 +8,15 @@ const redisBaseURL string = "http://redis.io"
 const RedisIndexURL string = redisBaseURL + "/commands"
 const RedisViewURL string = redisBaseURL + "%s"
 
+type Group struct {
+	Code string
+	Name string
+}
+
 type Index struct {
-	Group   string
+	Group   Group
 	CmdName string
-	Url     string
+	URL     string
 	Summary string
 }
 
@@ -22,12 +27,12 @@ type redisVersion struct {
 }
 
 type View struct {
-	Group            string
+	Group            Group
 	CmdName          string
 	Args             []string
 	AvailableVersion redisVersion
 	TimeComplexity   string
-	Url              string
+	URL              string
 }
 
 type indexParser interface {
